@@ -1,0 +1,12 @@
+{
+    "path_spectra":"spectra_example/spectra_15_06_2022_15-30-43.npy", 
+	"path_wl":"spectra_example/wavelengths_15_06_2022_15-30-43.npy", 
+	"Thetas":0,
+	"P0":[1.5,50,10,0,0.01,0.01,20,0],
+	"LB":[1,0,0,0,0.0005,0.001,0,-0.2],
+	"UB":[3,100,30,5,0.1,0.02,90,0.6],
+	"gtol":1E-6,
+	"xtol":1E-6,
+	"ftol":5E-3
+
+}
