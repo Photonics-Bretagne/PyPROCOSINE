@@ -23,9 +23,9 @@ Clone the PyProcosine repository
 ```
 git clone https://gitlab.com/analyse_data/pyprocosine.git
 ``` 
-Change the current working directory
+Change the current working directory and go to the install folder
 ```
-cd pyprocosine
+cd pyprocosine/install
 ``` 
 Finally, install the required Python packages
 ```
@@ -36,8 +36,9 @@ Enjoy!
 **Note:** Installation of Numpy package should be done at the same time that the Scipy package in order to have compatible versions.
 
 ## Some first tests (examples)
+
 ### Simulation of the spectral response using biophysical parameters
-First, enter the biophysical parameters of the leaf you want to simulate using this [file](simulation_parameters.json):
+First, enter the biophysical parameters of the leaf you want to simulate using this [file](conf/simulation_parameters.json):
 - N: leaf structure parameter
 - Cab: chlorophyll A and B content [µg/cm²]
 - Ccx: carotenoids content [µg/cm²]
@@ -47,7 +48,7 @@ First, enter the biophysical parameters of the leaf you want to simulate using t
 - Theta_i: light incident angle [°]
 - Bspec: specular parameter [unitless]
 
-Then, in order to launch a simulation with the PROCOSINE model using the script [main_procosine_simu](main_procosine_simu.py), type the following command.
+Then, in order to launch a simulation with the PROCOSINE model go on the app folder and using the script [main_procosine_simu](app/main_procosine_simu.py), type the following command.
 ```
 python main_procosine_simu.py
 ``` 
@@ -58,7 +59,7 @@ You should get a plot where the pseudo bidirectionnal reflectance factor is expr
 
 
 ### Inversion 
-Similar to the simulation of spectral response, inversion model can be performed by entering the fields in the file [inversion_parameters](inversion_parameters.json):
+Similar to the simulation of spectral response, inversion model can be performed by entering the fields in the file [inversion_parameters](conf/inversion_parameters.json):
 - path_spectra: path where the spectral intensities are saved
 - path_wl: path where the wavelengths are saved  
 - Thetas: incident angle [°]
@@ -69,7 +70,7 @@ Similar to the simulation of spectral response, inversion model can be performed
 - xtol: Tolerance for termination by the change of the independent variables
 - ftol: Tolerance for termination by the change of the cost function
 
-Then, lauch the inversion model by executing the script [main_inversion_spectrum](main_inversion_spectrum.py)
+Then, lauch the inversion model by executing the script [main_inversion_spectrum](app/main_inversion_spectrum.py)
 using the following command:
 ```
 python main_inversion_spectrum.py
