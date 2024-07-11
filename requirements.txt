@@ -1,3 +1,0 @@
-scipy==1.9.0
-matplotlib==3.8.0
-uncertainties==3.1.7
