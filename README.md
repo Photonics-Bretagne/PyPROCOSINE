@@ -54,7 +54,7 @@ python main_procosine_simu.py
 ``` 
 You should get a plot where the pseudo bidirectionnal reflectance factor is expressed as a function of the wavelength using the leaf parameters entered before.
 <p align="center">
-<img src="img/result_simu.PNG" alt="result procosine simu" width="500"/>
+<img src="img/result_simu.PNG" alt="result procosine simu" width="700"/>
 </p>
 
 
@@ -77,7 +77,7 @@ python main_inversion_spectrum.py
 ``` 
 Inversion algorithm will then plot the superposition of the measured spectrum and the simulated one. Biophysical parameters are also calculated and displayed in the title part. 
 <p align="center">
-<img src="img/result_inversion.PNG" alt="result procosine inversion" width="500"/>
+<img src="img/result_inversion.PNG" alt="result procosine inversion" width="700"/>
 </p>
 
 ## Fundings
