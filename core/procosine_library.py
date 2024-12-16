@@ -57,7 +57,8 @@ class Procosine():
         and used with his autorization.
         ***********************************************************************
         """
-        self.data=np.load(self.root_path+"\\conf\\dataSpec_P5B.npy")
+        path_conf=os.path.join(self.root_path,"conf","dataSpec_P5B.npy")
+        self.data=np.load(path_conf)
 
 
     def loading_inversion_parameters(self,parameter_file_name):
@@ -70,7 +71,7 @@ class Procosine():
             the title of the json file containing inversion parameters. The json file need to be stored in the conf directory !!
 
         """
-        param_path=self.root_path+"\\conf\\"+parameter_file_name
+        param_path=os.path.join(self.root_path,"conf",parameter_file_name)
         with open(param_path, 'r') as f:
             self.inversion_param  = json.load(f)
         self.inversion_param["P0"]=np.array(self.inversion_param["P0"])
@@ -89,7 +90,7 @@ class Procosine():
             the title of the json file containing simulation parameters. The json file need to be stored in the conf directory !!
 
         """
-        param_path=self.root_path+"\\conf\\"+parameter_file_name
+        param_path=os.path.join(self.root_path,"conf",parameter_file_name)
         with open(param_path, 'r') as f:
             self.simulation_param  = json.load(f) 
            
@@ -107,8 +108,9 @@ class Procosine():
         wavelength_file_name : str
             the title of the npy file containing corresponding vwavelngths of the spectrum reflectance values. The npy file need to be stored in the spectra_example directory !!
         """
-        self.spectrum=np.load(self.root_path+"\\spectra_example\\"+spectrum_file_name)
-        self.wl=np.load(self.root_path+"\\spectra_example\\"+wavelength_file_name)
+        spectrum_path=os.path.join(self.root_path,"spectra_example",spectrum_file_name)
+        self.spectrum=np.load(os.path.join(self.root_path,"spectra_example",spectrum_file_name))
+        self.wl=np.load(os.path.join(self.root_path,"spectra_example",wavelength_file_name))
 
     def procosine_inversion(self):
 
