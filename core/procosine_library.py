@@ -21,7 +21,7 @@ import json
 from scipy import optimize as opt
 from uncertainties import ufloat 
 import matplotlib.pyplot as plt
-import pyprocosine.core.procosine_src as src
+import core.procosine_src as src
 
 
 

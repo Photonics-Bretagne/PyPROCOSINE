@@ -1,10 +1,12 @@
-# define the root path of the repo in the sys path 
 import sys
 import os
-sys.path.append(f'..{os.sep}..')
+
+current_dir = os.path.dirname(__file__)
+root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(root_path)
 
 # import the core of procosine
-from pyprocosine.core.procosine_library import *
+from core.procosine_library import *
 
 
 pro=Procosine() # create a Procosine class

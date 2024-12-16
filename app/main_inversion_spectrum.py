@@ -1,11 +1,13 @@
 #define the root path on teh root of the repo
 import sys
 import os
-sys.path.append(f'..{os.sep}..')
-print(sys.path)
+
+current_dir = os.path.dirname(__file__)
+root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(root_path)
 
 #import the core of procosine
-import pyprocosine.core.procosine_library as proco
+import core.procosine_library as proco
 
 pro=proco.Procosine() # create a Procosine Class 
 pro.loading_inversion_parameters("inversion_parameters.json") # load inversion paraametrs from the json file in conf folder
