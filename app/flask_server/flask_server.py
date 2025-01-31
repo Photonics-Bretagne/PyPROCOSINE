@@ -35,6 +35,8 @@ def save_config(config, file_path):
 
 # Fonction pour générer un graphique et retourner une image encodée en base64
 def create_plot(data):
+    if data is None:
+        return None  # Retourne None si aucune donnée n'est disponible
     fig, ax = plt.subplots()
     ax.plot(data, label="Simulated Spectrum")
     ax.set_title("Procosine Simulation")
@@ -51,17 +53,7 @@ def create_plot(data):
 
 @app.route('/')
 def home():
-    simulated_spectrum = None
-    try:
-        pro = proco.Procosine()
-        pro.loading_simulation_paramaters("simulation_parameters.json")
-        pro.procosine_simulation()
-        simulated_spectrum = pro.simulated_spectrum
-    except Exception as e:
-        print(f"Erreur lors de la simulation : {e}")
-
-    plot_url = create_plot(simulated_spectrum) if simulated_spectrum is not None else None
-    return render_template('home.html', plot_url=plot_url)
+    return render_template('home.html', plot_url=None)  # Aucune simulation au démarrage
 
 @app.route('/inversion-parameter', methods=['GET', 'POST'])
 def inversion_parameter():
@@ -74,7 +66,7 @@ def inversion_parameter():
                 except ValueError:
                     config[key] = request.form[key]  # Garder la valeur brute si conversion impossible
         save_config(config, INVERSION_CONFIG_FILE_PATH)
-        return redirect(url_for('inversion_parameter'))
+        return redirect(url_for('home'))  # Ne lance pas la simulation automatiquement
 
     config = load_config(INVERSION_CONFIG_FILE_PATH)
     return render_template('inversion_parameter.html', config=config)
@@ -90,7 +82,7 @@ def simulation_parameter():
                 except ValueError:
                     config[key] = request.form[key]  # Garder la valeur brute si conversion impossible
         save_config(config, SIMULATION_CONFIG_FILE_PATH)
-        return redirect(url_for('simulation_parameter'))
+        return redirect(url_for('home'))  # Ne lance pas la simulation automatiquement
 
     config = load_config(SIMULATION_CONFIG_FILE_PATH)
     return render_template('simulation_parameter.html', config=config)
@@ -101,7 +93,8 @@ def run_simulation():
     pro.loading_simulation_paramaters("simulation_parameters.json")  # Load simulation parameters from the json file in conf folder
     pro.procosine_simulation()  # Run the Procosine simulation
     print(np.size(pro.simulated_spectrum))
-    return redirect(url_for('home'))
+    plot_url = create_plot(pro.simulated_spectrum)  # Génère le graphique uniquement après le clic sur Run Simulation
+    return render_template('home.html', plot_url=plot_url)  # Affiche la simulation après le clic
 
 if __name__ == '__main__':
     app.run(debug=True)
