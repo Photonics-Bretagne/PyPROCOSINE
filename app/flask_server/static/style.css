@@ -1,0 +1,84 @@
+/* Style global pour le projet d'inversion des paramètres biophysiques */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #eaf7ea; /* Vert clair pour un thème nature/agronomie */
+    margin: 0;
+    padding: 0;
+    color: #2d4725; /* Vert foncé pour le texte */
+}
+
+h1, h2 {
+    text-align: center;
+    color: #356c36; /* Couleur verte pour les titres */
+}
+
+button {
+    display: inline-block;
+    background-color: #4caf50; /* Vert soutenu pour les boutons */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #388e3c; /* Vert plus sombre au survol */
+}
+
+table {
+    width: 80%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    border: 1px solid #c4e3c4; /* Bordure légère en vert */
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #c4e3c4;
+}
+
+th {
+    background-color: #a8d5a8; /* Vert clair pour les en-têtes de tableau */
+    color: #2d4725;
+}
+
+td {
+    background-color: #f5fff5; /* Fond très clair pour le tableau */
+}
+
+form {
+    text-align: center;
+}
+
+a {
+    text-decoration: none;
+    color: #356c36;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Conteneur principal pour centrer le contenu */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Style pour les alertes ou messages */
+.alert {
+    margin: 20px auto;
+    padding: 10px;
+    border: 1px solid #4caf50;
+    background-color: #e8f5e9;
+    color: #2d4725;
+    border-radius: 5px;
+    width: 80%;
+    text-align: center;
+}
