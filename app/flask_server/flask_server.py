@@ -7,8 +7,7 @@ import matplotlib.pyplot as plt
 import io
 import base64
 import matplotlib
-matplotlib.use('Agg')  # Utilise le backend sans interface graphique
-
+matplotlib.use('Agg')  # Utilisation du backend sans interface graphique
 
 # Définition du chemin du projet depuis la racine
 current_dir = os.path.dirname(__file__)
@@ -23,12 +22,13 @@ SIMULATION_CONFIG_FILE_PATH = os.path.join(root_path, 'conf', 'simulation_parame
 # Initialisation de l'application Flask
 app = Flask(__name__)
 
-# Fonction pour charger la configuration JSON
+# Fonction pour charger la configuration JSON tout en conservant le bon format des nombres
 def load_config(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
-        return json.load(file)
+        config = json.load(file)
+    return config  # Ne pas modifier les types ici pour préserver le format d'origine
 
-# Fonction pour sauvegarder la configuration JSON
+# Fonction pour sauvegarder la configuration JSON sans altérer le format d'origine
 def save_config(config, file_path):
     with open(file_path, 'w', encoding='utf-8') as file:
         json.dump(config, file, indent=4, ensure_ascii=False)
@@ -69,7 +69,10 @@ def inversion_parameter():
         config = load_config(INVERSION_CONFIG_FILE_PATH)
         for key in config.keys():
             if key in request.form:
-                config[key] = request.form[key]
+                try:
+                    config[key] = json.loads(request.form[key])  # Convertir au bon format
+                except ValueError:
+                    config[key] = request.form[key]  # Garder la valeur brute si conversion impossible
         save_config(config, INVERSION_CONFIG_FILE_PATH)
         return redirect(url_for('inversion_parameter'))
 
@@ -82,7 +85,10 @@ def simulation_parameter():
         config = load_config(SIMULATION_CONFIG_FILE_PATH)
         for key in config.keys():
             if key in request.form:
-                config[key] = request.form[key]
+                try:
+                    config[key] = json.loads(request.form[key])  # Convertir au bon format
+                except ValueError:
+                    config[key] = request.form[key]  # Garder la valeur brute si conversion impossible
         save_config(config, SIMULATION_CONFIG_FILE_PATH)
         return redirect(url_for('simulation_parameter'))
 
