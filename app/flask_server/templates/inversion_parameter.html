@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inversion Parameter</title>
+</head>
+<body>
+    <h2>Modifier les paramètres d'inversion</h2>
+    <form method="post">
+        <table border="1">
+            <tr>
+                <th>Paramètre</th>
+                <th>Valeur</th>
+            </tr>
+            {% for key, value in config.items() %}
+            <tr>
+                <td>{{ key }}</td>
+                <td><input type="text" name="{{ key }}" value="{{ value }}"></td>
+            </tr>
+            {% endfor %}
+        </table>
+        <button type="submit">Valider</button>
+        <a href="/">Annuler</a>
+    </form>
+</body>
+</html>
