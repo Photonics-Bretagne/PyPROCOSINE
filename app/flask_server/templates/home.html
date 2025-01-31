@@ -7,7 +7,10 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Bienvenue sur la page principale</h1>
+    <div class="logo-container">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
+    </div>
+    <h1>Bienvenue sur PyProcosine</h1>
     <button onclick="location.href='{{ url_for('inversion_parameter') }}'">Inversion Parameter</button>
     <button onclick="location.href='{{ url_for('simulation_parameter') }}'">Simulation Parameter</button>
     <form method="post" action="{{ url_for('run_simulation') }}" style="display:inline;">
@@ -15,10 +18,12 @@
     </form>
     
     {% if plot_url %}
-    <h2>Simulation Results</h2>
-    <img src="data:image/png;base64,{{ plot_url }}" alt="Simulation Graph">
+    <div class="plot-container">
+        <img src="data:image/png;base64,{{ plot_url }}" alt="Simulation Graph" class="plot-image">
+    </div>
     {% else %}
-    <p>No simulation data available.</p>
+        <p style="text-align: center;">No simulation data available.</p>
     {% endif %}
 </body>
 </html>
+

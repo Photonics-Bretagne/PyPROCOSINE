@@ -82,3 +82,22 @@ a:hover {
     width: 80%;
     text-align: center;
 }
+
+.logo-container {
+    position: absolute;
+    top: 10px;
+    right: 10px;  /* Déplacement en haut à droite */
+}
+
+.logo {
+    width: 200px;  /* 4 fois plus petit que l'original (ajuste si nécessaire) */
+    height: auto;
+}
+
+.plot-container {
+    display: flex;
+    justify-content: center; /* Centre horizontalement */
+    align-items: center; /* Centre verticalement si nécessaire */
+    width: 100%;
+    margin-top: 20px; /* Ajoute un peu d'espace au-dessus */
+}
