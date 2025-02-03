@@ -10,68 +10,82 @@
     <div class="logo-container">
         <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
     </div>
+
     <h1>Bienvenue sur PyProcosine</h1>
+
     <button onclick="location.href='{{ url_for('inversion_parameter') }}'">Inversion Parameter</button>
     <button onclick="location.href='{{ url_for('simulation_parameter') }}'">Simulation Parameter</button>
-    <button onclick="runInversion()">Run Inversion</button>
     <button onclick="openFileSelector()">Load Spectrum</button>
+    
     <input type="file" id="fileInput" style="display: none;" onchange="uploadFile()">
 
-    <form method="post" action="{{ url_for('run_simulation') }}" style="display:inline;">
-        <button type="submit">Run Simulation</button>
-    </form>
-    
-    {% if plot_url %}
-    <div class="plot-container">
-        <img src="data:image/png;base64,{{ plot_url }}" alt="Simulation Graph" class="plot-image">
-    </div>
-    {% else %}
+    <!-- Boutons qui lancent les requêtes AJAX pour afficher les graphiques -->
+    <button onclick="runSimulation()">Run Simulation</button>
+    <button onclick="runInversion()">Run Inversion</button>
+
+    <!-- Conteneur où le graphique sera affiché -->
+    <div id="plot-container">
         <p style="text-align: center;">No simulation data available.</p>
-    {% endif %}
-</body>
-</html>
+    </div>
 
+    <script>
+        function openFileSelector() {
+            document.getElementById('fileInput').click();
+        }
 
-<script>
-    function openFileSelector() {
-        document.getElementById('fileInput').click();
-    }
-    
-    function uploadFile() {
-        var file = document.getElementById('fileInput').files[0];
-        if (file) {
-            var formData = new FormData();
-            formData.append("file", file);
-    
-            fetch("{{url_for('load_spectrum_route') }}", {
+        function uploadFile() {
+            var file = document.getElementById('fileInput').files[0];
+            if (file) {
+                var formData = new FormData();
+                formData.append("file", file);
+
+                fetch("{{url_for('load_spectrum_route') }}", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                })
+                .catch(error => {
+                    console.error("Error uploading file:", error);
+                    alert("Error uploading file.");
+                });
+            }
+        }
+
+        function runSimulation() {
+            fetch("{{ url_for('run_simulation') }}", {
                 method: "POST",
-                body: formData
+                headers: { "Content-Type": "application/json" }
             })
             .then(response => response.json())
             .then(data => {
-                alert(data.message);
+                if (data.plot_url) {
+                    document.getElementById("plot-container").innerHTML = `<img src="data:image/png;base64,${data.plot_url}" alt="Simulation Graph" class="plot-image">`;
+                } else {
+                    document.getElementById("plot-container").innerHTML = `<p style="text-align: center;">Simulation failed: ${data.error}</p>`;
+                }
             })
-            .catch(error => {
-                console.error("Error uploading file:", error);
-                alert("Error uploading file.");
-            });
+            .catch(error => console.error("Error:", error));
         }
-    }
-</script>
-    
 
-<script>
-    function runInversion() {
-        fetch("{{ url_for('run_inversion') }}", {
-            method: "POST"
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-        })
-        .catch(error => {
-            console.error("Error running inversion:", error);
-            alert("Error running inversion.");
-        });
-    }
+        function runInversion() {
+            fetch("{{ url_for('run_inversion') }}", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.plot_url) {
+                    document.getElementById("plot-container").innerHTML = `<img src="data:image/png;base64,${data.plot_url}" alt="Inversion Graph" class="plot-image">`;
+                } else {
+                    document.getElementById("plot-container").innerHTML = `<p style="text-align: center;">Inversion failed: ${data.error}</p>`;
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
     </script>
+
+</body>
+</html>

@@ -40,23 +40,51 @@ def save_config(config, file_path):
     with open(file_path, 'w', encoding='utf-8') as file:
         json.dump(config, file, indent=4, ensure_ascii=False)
 
-# Fonction pour générer un graphique et retourner une image encodée en base64
-def create_plot(data):
-    if data is None:
-        return None  # Retourne None si aucune donnée n'est disponible
+def create_sim_plot(wl, inv_spectrum):
+    if inv_spectrum is None:
+        return None
     fig, ax = plt.subplots()
-    ax.plot(data, label="Simulated Spectrum")
+    ax.plot(wl, inv_spectrum, label="Simulated Spectrum", color='blue')
     ax.set_title("Procosine Simulation")
     ax.set_xlabel("Wavelength")
     ax.set_ylabel("Intensity")
     ax.legend()
+
     buf = io.BytesIO()
     plt.savefig(buf, format="png")
     buf.seek(0)
     image_base64 = base64.b64encode(buf.read()).decode('utf-8')
     buf.close()
     plt.close(fig)
+
     return image_base64
+
+app.add_url_rule('/load-spectrum', 'load_spectrum_route', load_spectrum_route, methods=['POST'])
+
+# Fonction pour créer une image pour l'inversion
+def create_inversion_plot(proco):
+    fig, ax = plt.subplots()
+    
+    ax.plot(proco.wl, proco.spectrum, linewidth=2.5, color=(0.75, 0.75, 0.99), label='Measured Pseudo-BRF')
+    ax.plot(proco.wl, proco.inversion_spectrum, linestyle=':', linewidth=1.5, color=(0, 0, 0.7), label='Inverted Pseudo-BRF')
+    
+    ax.set_xlabel('Wavelength (nm)', fontsize=16, weight='bold')
+    ax.set_ylabel('Pseudo Bidirectional Reflectance Factor', fontsize=16, weight='bold')
+    ax.set_title(str(proco.inversion_result)[1:-1].replace("'", ""), weight='bold')
+
+    ax.set_xlim(min(proco.wl), max(proco.wl))
+    ax.set_ylim(0, 1)
+    ax.legend()
+
+    buf = io.BytesIO()
+    plt.savefig(buf, format="png", bbox_inches='tight')
+    buf.seek(0)
+    image_base64 = base64.b64encode(buf.read()).decode('utf-8')
+    buf.close()
+    plt.close(fig)
+
+    return image_base64
+
 
 @app.route('/')
 def home():
@@ -94,41 +122,45 @@ def simulation_parameter():
     config = load_config(SIMULATION_CONFIG_FILE_PATH)
     return render_template('simulation_parameter.html', config=config)
 
-@app.route('/run-simulation', methods=['POST'])
-def run_simulation():
-    pro = proco.Procosine()  # create a Procosine class
-    pro.loading_simulation_paramaters("simulation_parameters.json")  # Load simulation parameters from the json file in conf folder
-    pro.procosine_simulation()  # Run the Procosine simulation
-    print(np.size(pro.simulated_spectrum))
-    plot_url = create_plot(pro.simulated_spectrum)  # Génère le graphique uniquement après le clic sur Run Simulation
-    return render_template('home.html', plot_url=plot_url)  # Affiche la simulation après le clic
-
 app.add_url_rule('/load-spectrum', 'load_spectrum_route', load_spectrum_route, methods=['POST'])
 
+@app.route('/run-simulation', methods=['POST'])
+def run_simulation():
+    try:
+        pro = proco.Procosine()
+        pro.loading_simulation_paramaters(SIMULATION_CONFIG_FILE_PATH)
+        pro.procosine_simulation()
+
+        plot_url = create_sim_plot(pro.data[:, 0], pro.simulated_spectrum)
+        return jsonify({'plot_url': plot_url})
+
+    except Exception as e:
+        return jsonify({'error': str(e)})
 
 @app.route('/run-inversion', methods=['POST'])
 def run_inversion():
-    loaded_wavelengths = get_loaded_wavelengths()
-    loaded_reflectances = get_loaded_reflectances()
-
-    
-    if loaded_wavelengths is None or loaded_reflectances is None:
-        return jsonify({"message": "No spectrum loaded"}), 400
-    
     try:
+        loaded_wavelengths = get_loaded_wavelengths()
+        loaded_reflectances = get_loaded_reflectances()
+
+        if loaded_wavelengths is None or loaded_reflectances is None:
+            return jsonify({'error': "No spectrum loaded"})
+
         pro = proco.Procosine()
-        pro.loading_inversion_parameters(INVERSION_CONFIG_FILE_PATH)  # Charger les paramètres d'inversion
-        print("inversion paraametrs loaded")
+        pro.loading_inversion_parameters(INVERSION_CONFIG_FILE_PATH)
         pro.wl = loaded_wavelengths
         pro.spectrum = loaded_reflectances
+        pro.procosine_inversion()
 
-        print(type(pro.spectrum))
-        print(np.shape(pro.spectrum))
-        pro.procosine_inversion()  # Lancer l'inversion
-        print(pro.inversion_result)
-        return jsonify({"message": "inversion done"}), 500
+        plot_url = create_inversion_plot(pro)
+        return jsonify({'plot_url': plot_url})
+
     except Exception as e:
-        return jsonify({"message": f"Error running inversion: {str(e)}"}), 500
+        return jsonify({'error': str(e)})
+
+
+
+
 
 
 if __name__ == '__main__':
