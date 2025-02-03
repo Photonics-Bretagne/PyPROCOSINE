@@ -70,7 +70,7 @@ def create_inversion_plot(proco):
     
     ax.set_xlabel('Wavelength (nm)', fontsize=16, weight='bold')
     ax.set_ylabel('Pseudo Bidirectional Reflectance Factor', fontsize=16, weight='bold')
-    ax.set_title(str(proco.inversion_result)[1:-1].replace("'", ""), weight='bold')
+    #x.set_title(str(proco.inversion_result)[1:-1].replace("'", ""), weight='bold')
 
     ax.set_xlim(min(proco.wl), max(proco.wl))
     ax.set_ylim(0, 1)

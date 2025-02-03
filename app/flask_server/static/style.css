@@ -94,10 +94,22 @@ a:hover {
     height: auto;
 }
 
-.plot-container {
+#plot-container {
     display: flex;
     justify-content: center; /* Centre horizontalement */
-    align-items: center; /* Centre verticalement si nécessaire */
-    width: 100%;
-    margin-top: 20px; /* Ajoute un peu d'espace au-dessus */
+    align-items: center; /* Centre verticalement */
+    text-align: center;
+    width: 100%; /* Assure que le conteneur prend toute la largeur */
+    min-height: 400px; /* Définit une hauteur minimale pour éviter le saut d'affichage */
+    margin-top: 20px;
+}
+
+#plot-container img {
+    display: block;
+    margin: auto;
+    max-width: 80%; /* Évite que l'image ne soit trop grande */
+    height: auto;
+    border: 2px solid #333;
+    border-radius: 10px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
 }
