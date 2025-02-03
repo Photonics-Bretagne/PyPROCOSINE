@@ -1,13 +1,20 @@
 import os
 import sys
 import json
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
+
 import numpy as np
 import matplotlib.pyplot as plt
 import io
 import base64
 import matplotlib
 matplotlib.use('Agg')  # Utilisation du backend sans interface graphique
+
+from spectrum_loader import load_spectrum_route
+from spectrum_loader import get_loaded_wavelengths, get_loaded_reflectances
+
+
+
 
 # Définition du chemin du projet depuis la racine
 current_dir = os.path.dirname(__file__)
@@ -95,6 +102,34 @@ def run_simulation():
     print(np.size(pro.simulated_spectrum))
     plot_url = create_plot(pro.simulated_spectrum)  # Génère le graphique uniquement après le clic sur Run Simulation
     return render_template('home.html', plot_url=plot_url)  # Affiche la simulation après le clic
+
+app.add_url_rule('/load-spectrum', 'load_spectrum_route', load_spectrum_route, methods=['POST'])
+
+
+@app.route('/run-inversion', methods=['POST'])
+def run_inversion():
+    loaded_wavelengths = get_loaded_wavelengths()
+    loaded_reflectances = get_loaded_reflectances()
+
+    
+    if loaded_wavelengths is None or loaded_reflectances is None:
+        return jsonify({"message": "No spectrum loaded"}), 400
+    
+    try:
+        pro = proco.Procosine()
+        pro.loading_inversion_parameters(INVERSION_CONFIG_FILE_PATH)  # Charger les paramètres d'inversion
+        print("inversion paraametrs loaded")
+        pro.wl = loaded_wavelengths
+        pro.spectrum = loaded_reflectances
+
+        print(type(pro.spectrum))
+        print(np.shape(pro.spectrum))
+        pro.procosine_inversion()  # Lancer l'inversion
+        print(pro.inversion_result)
+        return jsonify({"message": "inversion done"}), 500
+    except Exception as e:
+        return jsonify({"message": f"Error running inversion: {str(e)}"}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True)

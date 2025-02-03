@@ -22,6 +22,7 @@ from scipy import optimize as opt
 from uncertainties import ufloat 
 import matplotlib.pyplot as plt
 import core.procosine_src as src
+import pandas as pd
 
 
 
@@ -93,6 +94,9 @@ class Procosine():
         param_path=os.path.join(self.root_path,"conf",parameter_file_name)
         with open(param_path, 'r') as f:
             self.simulation_param  = json.load(f) 
+
+
+
            
 
     

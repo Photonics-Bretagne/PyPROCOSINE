@@ -13,6 +13,10 @@
     <h1>Bienvenue sur PyProcosine</h1>
     <button onclick="location.href='{{ url_for('inversion_parameter') }}'">Inversion Parameter</button>
     <button onclick="location.href='{{ url_for('simulation_parameter') }}'">Simulation Parameter</button>
+    <button onclick="runInversion()">Run Inversion</button>
+    <button onclick="openFileSelector()">Load Spectrum</button>
+    <input type="file" id="fileInput" style="display: none;" onchange="uploadFile()">
+
     <form method="post" action="{{ url_for('run_simulation') }}" style="display:inline;">
         <button type="submit">Run Simulation</button>
     </form>
@@ -27,3 +31,47 @@
 </body>
 </html>
 
+
+<script>
+    function openFileSelector() {
+        document.getElementById('fileInput').click();
+    }
+    
+    function uploadFile() {
+        var file = document.getElementById('fileInput').files[0];
+        if (file) {
+            var formData = new FormData();
+            formData.append("file", file);
+    
+            fetch("{{url_for('load_spectrum_route') }}", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+            })
+            .catch(error => {
+                console.error("Error uploading file:", error);
+                alert("Error uploading file.");
+            });
+        }
+    }
+</script>
+    
+
+<script>
+    function runInversion() {
+        fetch("{{ url_for('run_inversion') }}", {
+            method: "POST"
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+        })
+        .catch(error => {
+            console.error("Error running inversion:", error);
+            alert("Error running inversion.");
+        });
+    }
+    </script>
