@@ -5,6 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        #save-button {
+            display: none; /* Masqué tant qu'aucune simulation n'est lancée */
+        }
+    </style>
 </head>
 <body>
     <div class="logo-container">
@@ -13,33 +24,48 @@
 
     <h1>Bienvenue sur PyProcosine</h1>
 
-    <button onclick="location.href='{{ url_for('inversion_parameter') }}'">Inversion Parameter</button>
-    <button onclick="location.href='{{ url_for('simulation_parameter') }}'">Simulation Parameter</button>
-    <button onclick="openFileSelector()">Load Spectrum</button>
-    
-    <input type="file" id="fileInput" style="display: none;" onchange="uploadFile()">
+    <!-- Rangée de boutons -->
+    <div class="button-container">
+        <button onclick="location.href='{{ url_for('inversion_parameter') }}'">Inversion Parameter</button>
+        <button onclick="openFileSelector()">Load Spectrum</button>
+        <button onclick="runInversion()">Run Inversion</button>
+    </div>
+    <div class="button-container">
+        <button onclick="location.href='{{ url_for('simulation_parameter') }}'">Simulation Parameter</button>
+        <button onclick="runSimulation()">Run Simulation</button>
+    </div>
 
-    <!-- Boutons qui lancent les requêtes AJAX pour afficher les graphiques -->
-    <button onclick="runSimulation()">Run Simulation</button>
-    <button onclick="runInversion()">Run Inversion</button>
+    <input type="file" id="fileInput" style="display: none;" onchange="uploadFile()">
 
     <!-- Conteneur où le graphique sera affiché -->
     <div id="plot-container">
         <p style="text-align: center;">No simulation data available.</p>
     </div>
-    
+
+    <!-- Nouveau bouton pour sauvegarder -->
+    <div class="button-container">
+        <button id="save-button" onclick="saveSimulationResult()">Save Simulation Result</button>
+    </div>
+
     <script>
+        let simulatedSpectrum = null;
+        let simulationParams = null;
+        let simulatedWavelengths = null;  // ✅ Corrigez le problème de `wavelengths`
+
+
+        
+
         function openFileSelector() {
             document.getElementById('fileInput').click();
         }
 
         function uploadFile() {
-            var file = document.getElementById('fileInput').files[0];
+            const file = document.getElementById('fileInput').files[0];
             if (file) {
-                var formData = new FormData();
+                const formData = new FormData();
                 formData.append("file", file);
 
-                fetch("{{url_for('load_spectrum_route') }}", {
+                fetch("{{ url_for('load_spectrum_route') }}", {
                     method: "POST",
                     body: formData
                 })
@@ -52,22 +78,6 @@
                     alert("Error uploading file.");
                 });
             }
-        }
-
-        function runSimulation() {
-            fetch("{{ url_for('run_simulation') }}", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.plot_url) {
-                    document.getElementById("plot-container").innerHTML = `<img src="data:image/png;base64,${data.plot_url}" alt="Simulation Graph" class="plot-image">`;
-                } else {
-                    document.getElementById("plot-container").innerHTML = `<p style="text-align: center;">Simulation failed: ${data.error}</p>`;
-                }
-            })
-            .catch(error => console.error("Error:", error));
         }
 
         function runInversion() {
@@ -85,6 +95,93 @@
             })
             .catch(error => console.error("Error:", error));
         }
+
+        function runSimulation() {
+            fetch("{{ url_for('run_simulation') }}", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.plot_url) {
+                    document.getElementById("plot-container").innerHTML = `<img src="data:image/png;base64,${data.plot_url}" alt="Simulation Graph" class="plot-image">`;
+
+                    // ✅ Stocker les résultats de simulation
+                    simulatedSpectrum = data.simulated_spectrum;
+                    simulationParams = data.simulation_params;
+                    simulatedWavelengths = data.wavelengths;  // ✅ Ajout de wavelengths ici
+
+                    console.log("✅ Simulation successful!");
+                    console.log("📊 Simulated Spectrum:", simulatedSpectrum);
+                    console.log("⚙️ Simulation Params:", simulationParams);
+                    console.log("🌊 Wavelengths:", simulatedWavelengths);
+
+                    // ✅ Afficher le bouton de sauvegarde
+                    document.getElementById('save-button').style.display = "inline-block";
+                } else {
+                    console.error("❌ Simulation failed:", data.error);
+                    document.getElementById("plot-container").innerHTML = `<p style="text-align: center;">Simulation failed: ${data.error}</p>`;
+                }
+            })
+            .catch(error => console.error("❌ Error:", error));
+        }
+
+        function saveSimulationResult() {
+            console.log('✅ Save button clicked'); // Vérifiez que la fonction est appelée
+
+            if (simulatedSpectrum && simulationParams && simulatedWavelengths) { // ✅ Utilisez bien "simulatedWavelengths"
+                console.log('📤 All data is ready to be sent:', {
+                    simulated_spectrum: simulatedSpectrum,
+                    simulation_params: simulationParams,
+                    wavelengths: simulatedWavelengths // ✅ Ici aussi, utilisez "simulatedWavelengths"
+                });
+
+                fetch('/save-results', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        simulated_spectrum: simulatedSpectrum,
+                        simulation_params: simulationParams,
+                        wavelengths: simulatedWavelengths  // ✅ Ici aussi
+                    })
+                })
+                .then(response => {
+                    console.log('📥 Response received:', response);
+                    if (response.ok) {
+                        return response.blob();
+                    } else {
+                        return response.json().then(data => {
+                            console.error('❌ Server error:', data);
+                            throw new Error(data.error || 'Error saving results');
+                        });
+                    }
+                })
+                .then(blob => {
+                    console.log('✅ File ready for download!');
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'simulation_results.json';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                })
+                .catch(error => {
+                    console.error('❌ Error saving results:', error);
+                    alert('Error saving results: ' + error.message);
+                });
+            } else {
+                console.error('❌ Missing data:', {
+                    simulated_spectrum: simulatedSpectrum,
+                    simulation_params: simulationParams,
+                    wavelengths: simulatedWavelengths // ✅ Ici aussi
+                });
+                alert('No simulation data to save!');
+            }
+        }
+
+
     </script>
 
 </body>

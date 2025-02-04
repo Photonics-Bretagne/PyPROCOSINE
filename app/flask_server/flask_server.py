@@ -1,7 +1,8 @@
 import os
 import sys
 import json
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+import tempfile
+from flask import Flask, render_template, request, redirect, url_for, jsonify, send_file
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -131,11 +132,23 @@ def run_simulation():
         pro.loading_simulation_paramaters(SIMULATION_CONFIG_FILE_PATH)
         pro.procosine_simulation()
 
+        # Génération de l'URL du graphe
         plot_url = create_sim_plot(pro.data[:, 0], pro.simulated_spectrum)
-        return jsonify({'plot_url': plot_url})
+
+        # Extraction des données nécessaires pour la sauvegarde
+        simulated_spectrum = pro.simulated_spectrum.tolist()  # Convertir en liste pour JSON
+        simulation_params = getattr(pro, 'simulation_param', {})  # Récupérer les paramètres si définis
+        wavelengths=pro.data[:, 0].tolist()
+        return jsonify({
+            'plot_url': plot_url,
+            'simulated_spectrum': simulated_spectrum,
+            'simulation_params': simulation_params,
+            'wavelengths': wavelengths
+        })
 
     except Exception as e:
         return jsonify({'error': str(e)})
+
 
 @app.route('/run-inversion', methods=['POST'])
 def run_inversion():
@@ -159,6 +172,37 @@ def run_inversion():
         return jsonify({'error': str(e)})
 
 
+
+@app.route('/save-results', methods=['POST'])
+def save_results():
+    try:
+        data = request.json
+        app.logger.info(f"Data received in save-results: {data}")  # Loggez les données reçues
+
+        simulated_spectrum = data.get('simulated_spectrum')
+        simulation_params = data.get('simulation_params')
+        wavelengths = data.get('wavelengths')
+        print(type(wavelengths))
+
+        if simulated_spectrum is None or simulation_params is None or wavelengths is None:
+            app.logger.error('Missing required data.')
+            return jsonify({'error': 'Invalid data received. Missing simulated spectrum, parameters, or wavelengths.'}), 400
+
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.json')
+        output_data = {
+            'wavelengths': wavelengths,
+            'simulated_spectrum': simulated_spectrum,
+            'simulation_params': simulation_params
+        }
+        with open(temp_file.name, 'w') as f:
+            json.dump(output_data, f, indent=4)
+
+        app.logger.info(f"File created: {temp_file.name}")
+        return send_file(temp_file.name, as_attachment=True, download_name='simulation_results.json')
+
+    except Exception as e:
+        app.logger.error(f"Error in save-results: {e}")
+        return jsonify({'error': str(e)}), 500
 
 
 
