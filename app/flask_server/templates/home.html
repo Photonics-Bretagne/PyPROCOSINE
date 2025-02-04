@@ -24,17 +24,22 @@
 
     <h1>Bienvenue sur PyProcosine</h1>
 
-    <!-- Rangée de boutons -->
+    <!-- Rangée pour l'inversion -->
     <div class="button-container">
         <button onclick="location.href='{{ url_for('inversion_parameter') }}'">Inversion Parameter</button>
         <button onclick="openFileSelector()">Load Spectrum</button>
-        <button onclick="runInversion()">Run Inversion</button>
-    </div>
-    <div class="button-container">
-        <button onclick="location.href='{{ url_for('simulation_parameter') }}'">Simulation Parameter</button>
-        <button onclick="runSimulation()">Run Simulation</button>
+        <button id="run-inversion-button" onclick="runInversion()">Run Inversion</button>
+        <button id="save-inversion-button" style="display: none;" onclick="saveInversionResult()">Save Inversion Results</button>
     </div>
 
+    <!-- Rangée pour la simulation -->
+    <div class="button-container">
+        <button onclick="location.href='{{ url_for('simulation_parameter') }}'">Simulation Parameter</button>
+        <button id="run-simulation-button" onclick="runSimulation()">Run Simulation</button>
+        <button id="save-button" style="display: none;" onclick="saveSimulationResult()">Save Simulation Result</button>
+    </div>
+
+    <!-- Input caché pour charger le spectre -->
     <input type="file" id="fileInput" style="display: none;" onchange="uploadFile()">
 
     <!-- Conteneur où le graphique sera affiché -->
@@ -42,8 +47,8 @@
         <p style="text-align: center;">No simulation data available.</p>
     </div>
 
-    <!-- Nouveau bouton pour sauvegarder -->
-    <div class="button-container">
+
+    <div id="save-simulation-container" style="text-align: center; display: none;">
         <button id="save-button" onclick="saveSimulationResult()">Save Simulation Result</button>
     </div>
 
@@ -51,6 +56,11 @@
         let simulatedSpectrum = null;
         let simulationParams = null;
         let simulatedWavelengths = null;  // ✅ Corrigez le problème de `wavelengths`
+
+        let inversionParams = null;
+        let inversionResults = null;
+        let inversionSpectrum = null;
+        let inversionWavelengths = null; 
 
 
         
@@ -89,11 +99,27 @@
             .then(data => {
                 if (data.plot_url) {
                     document.getElementById("plot-container").innerHTML = `<img src="data:image/png;base64,${data.plot_url}" alt="Inversion Graph" class="plot-image">`;
+
+                    // ✅ Stocker les résultats pour la sauvegarde
+                    inversionParams = data.inversion_param;
+                    inversionResults = data.inversion_results;
+                    inversionSpectrum = data.inversion_spectrum;
+                    inversionWavelengths = data.wavelengths;
+
+                    console.log("✅ Inversion successful!");
+                    console.log("⚙️ Inversion Params:", inversionParams);
+                    console.log("📊 Inversion Results:", inversionResults);
+                    console.log("🌊 Inversion Spectrum:", inversionSpectrum);
+                    console.log("📡 Wavelengths:", inversionWavelengths);
+
+                    // ✅ Afficher le bouton "Save Inversion Results"
+                    document.getElementById("save-inversion-button").style.display = "block";
                 } else {
+                    console.error("❌ Inversion failed:", data.error);
                     document.getElementById("plot-container").innerHTML = `<p style="text-align: center;">Inversion failed: ${data.error}</p>`;
                 }
             })
-            .catch(error => console.error("Error:", error));
+            .catch(error => console.error("❌ Error in runInversion:", error));
         }
 
         function runSimulation() {
@@ -178,6 +204,57 @@
                     wavelengths: simulatedWavelengths // ✅ Ici aussi
                 });
                 alert('No simulation data to save!');
+            }
+        }
+
+        function saveInversionResult() {
+            if (inversionParams && inversionResults && inversionSpectrum && inversionWavelengths) {
+                console.log("📤 Sending inversion results to server:", {
+                    inversion_param: inversionParams,
+                    inversion_results: inversionResults,
+                    inversion_spectrum: inversionSpectrum,
+                    wavelengths: inversionWavelengths
+                });
+
+                fetch('/save-inversion-results', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        inversion_param: inversionParams,
+                        inversion_results: inversionResults,
+                        inversion_spectrum: inversionSpectrum,
+                        wavelengths: inversionWavelengths
+                    })
+                })
+                .then(response => {
+                    console.log("📥 Response received:", response);
+                    if (response.ok) {
+                        return response.blob();
+                    } else {
+                        return response.json().then(data => {
+                            console.error("❌ Server error:", data);
+                            throw new Error(data.error || 'Error saving inversion results');
+                        });
+                    }
+                })
+                .then(blob => {
+                    console.log("✅ File ready for download!");
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'inversion_results.json'; // ✅ Nom du fichier
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                })
+                .catch(error => {
+                    console.error("❌ Error saving results:", error);
+                    alert("Error saving inversion results: " + error.message);
+                });
+            } else {
+                console.error("❌ No inversion data to save!");
+                alert("No inversion data to save!");
             }
         }
 

@@ -150,6 +150,8 @@ def run_simulation():
         return jsonify({'error': str(e)})
 
 
+import numpy as np  # Ajoutez cette importation si ce n'est pas déjà fait
+
 @app.route('/run-inversion', methods=['POST'])
 def run_inversion():
     try:
@@ -164,12 +166,30 @@ def run_inversion():
         pro.wl = loaded_wavelengths
         pro.spectrum = loaded_reflectances
         pro.procosine_inversion()
-
         plot_url = create_inversion_plot(pro)
-        return jsonify({'plot_url': plot_url})
+
+        # ✅ Vérifier et convertir les objets numpy en listes JSON-compatibles
+        inversion_param = str(pro.inversion_param)[1:-1].replace("'", "")
+        inversion_result = str(pro.inversion_result)[1:-1].replace("'", "")
+        inversion_spectrum = pro.inversion_spectrum
+        if isinstance(inversion_spectrum, np.ndarray):
+            inversion_spectrum = inversion_spectrum.tolist()  # ✅ Conversion en liste
+
+        wl = pro.wl
+        if isinstance(wl, np.ndarray):
+            wl = wl.tolist()  # ✅ Conversion en liste
+
+        return jsonify({
+            'plot_url': plot_url,
+            'inversion_param': inversion_param,
+            'inversion_results': inversion_result,
+            'inversion_spectrum': inversion_spectrum,
+            'wavelengths': wl
+        })
 
     except Exception as e:
-        return jsonify({'error': str(e)})
+        return jsonify({'error': "in route: " + str(e)})
+
 
 
 
@@ -205,6 +225,33 @@ def save_results():
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/save-inversion-results', methods=['POST'])
+def save_inversion_results():
+    try:
+        data = request.json
+        inversion_param = data.get('inversion_param')
+        inversion_results = data.get('inversion_results')
+        inversion_spectrum = data.get('inversion_spectrum')
+        wavelengths = data.get('wavelengths')
+
+        if inversion_param is None or inversion_results is None or inversion_spectrum is None or wavelengths is None:
+            return jsonify({'error': 'Invalid data received. Missing inversion results.'}), 400
+
+        # ✅ Créer un fichier temporaire pour les résultats d’inversion
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.json')
+        output_data = {
+            'wavelengths': wavelengths,
+            'inversion_param': inversion_param,
+            'inversion_results': inversion_results,
+            'inversion_spectrum': inversion_spectrum
+        }
+        with open(temp_file.name, 'w') as f:
+            json.dump(output_data, f, indent=4)
+
+        return send_file(temp_file.name, as_attachment=True, download_name='inversion_results.json')
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 if __name__ == '__main__':
