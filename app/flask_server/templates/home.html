@@ -22,11 +22,11 @@
         <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
     </div>
 
-    <h1>Bienvenue sur PyProcosine</h1>
+    <h1>Welcome on PyProcosine</h1>
 
     <!-- Rangée pour l'inversion -->
     <div class="button-container">
-        <button onclick="location.href='{{ url_for('inversion_parameter') }}'">Inversion Parameter</button>
+        <button onclick="location.href='{{ url_for('inversion_parameter') }}'">Inversion Parameters</button>
         <button onclick="openFileSelector()">Load Spectrum</button>
         <button id="run-inversion-button" onclick="runInversion()">Run Inversion</button>
         <button id="save-inversion-button" style="display: none;" onclick="saveInversionResult()">Save Inversion Results</button>
@@ -34,7 +34,7 @@
 
     <!-- Rangée pour la simulation -->
     <div class="button-container">
-        <button onclick="location.href='{{ url_for('simulation_parameter') }}'">Simulation Parameter</button>
+        <button onclick="location.href='{{ url_for('simulation_parameter') }}'">Simulation Parameters</button>
         <button id="run-simulation-button" onclick="runSimulation()">Run Simulation</button>
         <button id="save-button" style="display: none;" onclick="saveSimulationResult()">Save Simulation Result</button>
     </div>

@@ -26,6 +26,7 @@ import core.procosine_library as proco
 
 INVERSION_CONFIG_FILE_PATH = os.path.join(root_path, 'conf', 'inversion_parameters.json')
 SIMULATION_CONFIG_FILE_PATH = os.path.join(root_path, 'conf', 'simulation_parameters.json')
+FLASK_CONFIG = os.path.join(root_path, 'conf', 'flask_server_config.json')
 
 # Initialisation de l'application Flask
 app = Flask(__name__)
@@ -255,4 +256,6 @@ def save_inversion_results():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    config=load_config(FLASK_CONFIG)
+    print(config)
+    app.run(host=config['ip'], port=config['port'], debug=True)
