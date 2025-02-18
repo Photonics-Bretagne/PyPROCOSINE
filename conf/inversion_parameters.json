@@ -1,6 +1,4 @@
 {
-    "path_spectra": "example_spectrum.npy",
-    "path_wl": "example_wavelengths.npy",
     "Thetas": 0,
     "P0": [
         1.5,
