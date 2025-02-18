@@ -52,7 +52,7 @@ By default, you can access it in your browser at: [http://127.0.0.1:5000/](http:
   <img src="img/flask_server.png" alt="Flask server interface" width="700"/>
 </p>
 
-For a detailed presentation of the Flask server, visit the wiki of this repository.
+For a detailed presentation of the Flask server, see the dedicated [README](app/flask_server/README.md) of the flask server.
 
 ## Some first tests (examples)
 
