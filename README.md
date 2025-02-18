@@ -35,6 +35,25 @@ Enjoy!
 
 **Note:** Installation of Numpy package should be done at the same time that the Scipy package in order to have compatible versions.
 
+## Using the Flask GUI
+
+Go to the `app/flask_server/` folder and run the [flask_server.py](app/flask_server/flask_server.py):  
+
+```bash
+cd app/flask_server
+python main_procosine_simu.py
+```
+
+The Flask server will be available at the IP and port defined in the [flask_server_config.json](conf/flask_server_config.json).  
+By default, you can access it in your browser at: [http://127.0.0.1:5000/](http://127.0.0.1:5000/).  
+
+
+<p align="center">
+  <img src="img/flask_server.png" alt="Flask server interface" width="700"/>
+</p>
+
+For a detailed presentation of the Flask server, visit the wiki of this repository.
+
 ## Some first tests (examples)
 
 ### Simulation of the spectral response using biophysical parameters
