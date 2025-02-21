@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        #save-button {
+            display: none; /* Masqué tant qu'aucune simulation n'est lancée */
+        }
+    </style>
+</head>
+<body>
+    <div class="logo-container">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
+    </div>
+
+    <h1>Welcome on PyProcosine</h1>
+
+    <!-- Rangée pour l'inversion -->
+    <div class="button-container">
+        <button onclick="location.href='{{ url_for('inversion_parameter') }}'">Inversion Parameters</button>
+        <button onclick="openFileSelector()">Load Spectrum</button>
+        <button id="run-inversion-button" onclick="runInversion()">Run Inversion</button>
+        <button id="save-inversion-button" style="display: none;" onclick="saveInversionResult()">Save Inversion Results</button>
+    </div>
+
+    <!-- Rangée pour la simulation -->
+    <div class="button-container">
+        <button onclick="location.href='{{ url_for('simulation_parameter') }}'">Simulation Parameters</button>
+        <button id="run-simulation-button" onclick="runSimulation()">Run Simulation</button>
+        <button id="save-button" style="display: none;" onclick="saveSimulationResult()">Save Simulation Result</button>
+    </div>
+
+    <!-- Input caché pour charger le spectre -->
+    <input type="file" id="fileInput" style="display: none;" onchange="uploadFile()">
+
+    <!-- Conteneur où le graphique sera affiché -->
+    <div id="plot-container">
+        <p style="text-align: center;">No simulation data available.</p>
+    </div>
+
+
+    <div id="save-simulation-container" style="text-align: center; display: none;">
+        <button id="save-button" onclick="saveSimulationResult()">Save Simulation Result</button>
+    </div>
+
+    <script>
+        let simulatedSpectrum = null;
+        let simulationParams = null;
+        let simulatedWavelengths = null;  // ✅ Corrigez le problème de `wavelengths`
+
+        let inversionParams = null;
+        let inversionResults = null;
+        let inversionSpectrum = null;
+        let inversionWavelengths = null; 
+
+
+        
+
+        function openFileSelector() {
+            document.getElementById('fileInput').click();
+        }
+
+        function uploadFile() {
+            const file = document.getElementById('fileInput').files[0];
+            if (file) {
+                const formData = new FormData();
+                formData.append("file", file);
+
+                fetch("{{ url_for('load_spectrum_route') }}", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                })
+                .catch(error => {
+                    console.error("Error uploading file:", error);
+                    alert("Error uploading file.");
+                });
+            }
+        }
+
+        function runInversion() {
+            fetch("{{ url_for('run_inversion') }}", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.plot_url) {
+                    document.getElementById("plot-container").innerHTML = `<img src="data:image/png;base64,${data.plot_url}" alt="Inversion Graph" class="plot-image">`;
+
+                    // ✅ Stocker les résultats pour la sauvegarde
+                    inversionParams = data.inversion_param;
+                    inversionResults = data.inversion_results;
+                    inversionSpectrum = data.inversion_spectrum;
+                    inversionWavelengths = data.wavelengths;
+
+                    console.log("✅ Inversion successful!");
+                    console.log("⚙️ Inversion Params:", inversionParams);
+                    console.log("📊 Inversion Results:", inversionResults);
+                    console.log("🌊 Inversion Spectrum:", inversionSpectrum);
+                    console.log("📡 Wavelengths:", inversionWavelengths);
+
+                    // ✅ Afficher le bouton "Save Inversion Results"
+                    document.getElementById("save-inversion-button").style.display = "block";
+                } else {
+                    console.error("❌ Inversion failed:", data.error);
+                    document.getElementById("plot-container").innerHTML = `<p style="text-align: center;">Inversion failed: ${data.error}</p>`;
+                }
+            })
+            .catch(error => console.error("❌ Error in runInversion:", error));
+        }
+
+        function runSimulation() {
+            fetch("{{ url_for('run_simulation') }}", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.plot_url) {
+                    document.getElementById("plot-container").innerHTML = `<img src="data:image/png;base64,${data.plot_url}" alt="Simulation Graph" class="plot-image">`;
+
+                    // ✅ Stocker les résultats de simulation
+                    simulatedSpectrum = data.simulated_spectrum;
+                    simulationParams = data.simulation_params;
+                    simulatedWavelengths = data.wavelengths;  // ✅ Ajout de wavelengths ici
+
+                    console.log("✅ Simulation successful!");
+                    console.log("📊 Simulated Spectrum:", simulatedSpectrum);
+                    console.log("⚙️ Simulation Params:", simulationParams);
+                    console.log("🌊 Wavelengths:", simulatedWavelengths);
+
+                    // ✅ Afficher le bouton de sauvegarde
+                    document.getElementById('save-button').style.display = "inline-block";
+                } else {
+                    console.error("❌ Simulation failed:", data.error);
+                    document.getElementById("plot-container").innerHTML = `<p style="text-align: center;">Simulation failed: ${data.error}</p>`;
+                }
+            })
+            .catch(error => console.error("❌ Error:", error));
+        }
+
+        function saveSimulationResult() {
+            console.log('✅ Save button clicked'); // Vérifiez que la fonction est appelée
+
+            if (simulatedSpectrum && simulationParams && simulatedWavelengths) { // ✅ Utilisez bien "simulatedWavelengths"
+                console.log('📤 All data is ready to be sent:', {
+                    simulated_spectrum: simulatedSpectrum,
+                    simulation_params: simulationParams,
+                    wavelengths: simulatedWavelengths // ✅ Ici aussi, utilisez "simulatedWavelengths"
+                });
+
+                fetch('/save-results', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        simulated_spectrum: simulatedSpectrum,
+                        simulation_params: simulationParams,
+                        wavelengths: simulatedWavelengths  // ✅ Ici aussi
+                    })
+                })
+                .then(response => {
+                    console.log('📥 Response received:', response);
+                    if (response.ok) {
+                        return response.blob();
+                    } else {
+                        return response.json().then(data => {
+                            console.error('❌ Server error:', data);
+                            throw new Error(data.error || 'Error saving results');
+                        });
+                    }
+                })
+                .then(blob => {
+                    console.log('✅ File ready for download!');
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'simulation_results.json';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                })
+                .catch(error => {
+                    console.error('❌ Error saving results:', error);
+                    alert('Error saving results: ' + error.message);
+                });
+            } else {
+                console.error('❌ Missing data:', {
+                    simulated_spectrum: simulatedSpectrum,
+                    simulation_params: simulationParams,
+                    wavelengths: simulatedWavelengths // ✅ Ici aussi
+                });
+                alert('No simulation data to save!');
+            }
+        }
+
+        function saveInversionResult() {
+            if (inversionParams && inversionResults && inversionSpectrum && inversionWavelengths) {
+                console.log("📤 Sending inversion results to server:", {
+                    inversion_param: inversionParams,
+                    inversion_results: inversionResults,
+                    inversion_spectrum: inversionSpectrum,
+                    wavelengths: inversionWavelengths
+                });
+
+                fetch('/save-inversion-results', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        inversion_param: inversionParams,
+                        inversion_results: inversionResults,
+                        inversion_spectrum: inversionSpectrum,
+                        wavelengths: inversionWavelengths
+                    })
+                })
+                .then(response => {
+                    console.log("📥 Response received:", response);
+                    if (response.ok) {
+                        return response.blob();
+                    } else {
+                        return response.json().then(data => {
+                            console.error("❌ Server error:", data);
+                            throw new Error(data.error || 'Error saving inversion results');
+                        });
+                    }
+                })
+                .then(blob => {
+                    console.log("✅ File ready for download!");
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'inversion_results.json'; // ✅ Nom du fichier
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                })
+                .catch(error => {
+                    console.error("❌ Error saving results:", error);
+                    alert("Error saving inversion results: " + error.message);
+                });
+            } else {
+                console.error("❌ No inversion data to save!");
+                alert("No inversion data to save!");
+            }
+        }
+
+
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,34 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Title</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inversion Parameters</title>
+</head>
+<body>
+    <h2>Change inversion parameters</h2>
+    <form method="post">
+        <table border="1">
+            <tr>
+                <th>Parameters</th>
+                <th>Values</th>
+            </tr>
+            {% for key, value in config.items() %}
+            <tr>
+                <td>{{ key }}</td>
+                <td><input type="text" name="{{ key }}" value="{{ value }}"></td>
+            </tr>
+            {% endfor %}
+        </table>
+        <button type="submit">Valider</button>
+    </form>
+</body>
+</html>
