@@ -21,7 +21,10 @@ import json
 from scipy import optimize as opt
 from uncertainties import ufloat 
 import matplotlib.pyplot as plt
-import core.procosine_src as src
+import importlib.resources as pkg_resources
+import pyprocosine.core as core
+from pyprocosine.core import procosine_src as src
+
 import pandas as pd
 
 
@@ -30,12 +33,13 @@ import pandas as pd
 class Procosine():
 
     def __init__(self):
-        working_path=os.getcwd()
-        self.actual_path= os.path.dirname(os.path.realpath(__file__))
-        os.chdir(self.actual_path)
-        os.chdir('..')
-        self.root_path=os.getcwd()
-        os.chdir(working_path)
+        # working_path=os.getcwd()
+        # self.actual_path= os.path.dirname(os.path.realpath(__file__))
+        # os.chdir(self.actual_path)
+        # os.chdir('..')
+        # self.root_path=os.getcwd()
+        # os.chdir(working_path)
+        self.root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
         self.dataSpec_P5B() 
 
     def dataSpec_P5B(self):
@@ -58,22 +62,23 @@ class Procosine():
         and used with his autorization.
         ***********************************************************************
         """
-        path_conf=os.path.join(self.root_path,"conf","dataSpec_P5B.npy")
-        self.data=np.load(path_conf)
+        #path_conf=os.path.join(self.root_path,"conf","dataSpec_P5B.npy")
+        with pkg_resources.files(core).joinpath("dataSpec_P5B.npy").open("rb") as f:
+            self.data=np.load(f)
 
 
-    def loading_inversion_parameters(self,parameter_file_name):
+    def loading_inversion_parameters(self,parameter_path):
         """
         This function allows to load inversion parameters stored in json file. The json file need to be stored  in the conf directory !
 
         Parameters
         ----------
-        parameter_file_name : str
-            the title of the json file containing inversion parameters. The json file need to be stored in the conf directory !!
+        parameter_path : str
+            the path of the json file containing inversion parameters. The json file need to be stored in the conf directory !!
 
         """
-        param_path=os.path.join(self.root_path,"conf",parameter_file_name)
-        with open(param_path, 'r') as f:
+        
+        with open(parameter_path, 'r') as f:
             self.inversion_param  = json.load(f)
         self.inversion_param["P0"]=np.array(self.inversion_param["P0"])
         self.inversion_param["LB"]=np.array(self.inversion_param["LB"])
@@ -81,18 +86,18 @@ class Procosine():
         self.inversion_param["Thetas"]=int(self.inversion_param["Thetas"])
 
 
-    def loading_simulation_paramaters(self,parameter_file_name):
+    def loading_simulation_paramaters(self,parameter_path):
         """
         This function allows to load simulation parameters stored in json file. The json file need to be stored  in the conf directory !
 
         Parameters
         ----------
-        parameter_file_name : str
-            the title of the json file containing simulation parameters. The json file need to be stored in the conf directory !!
+        parameter_path : str
+            the path of the json file containing simulation parameters. The json file need to be stored in the conf directory !!
 
         """
-        param_path=os.path.join(self.root_path,"conf",parameter_file_name)
-        with open(param_path, 'r') as f:
+
+        with open(parameter_path, 'r') as f:
             self.simulation_param  = json.load(f) 
 
 
@@ -100,7 +105,7 @@ class Procosine():
            
 
     
-    def load_spectrum(self,spectrum_file_name,wavelength_file_name):
+    def load_spectrum(self,spectrum_path,wavelength_path):
         """
         This function allows to load spectrum and wavelengths stored in .npy format . npy files need to be stored  in the spectra_example directory !
 
@@ -112,9 +117,9 @@ class Procosine():
         wavelength_file_name : str
             the title of the npy file containing corresponding vwavelngths of the spectrum reflectance values. The npy file need to be stored in the spectra_example directory !!
         """
-        spectrum_path=os.path.join(self.root_path,"spectra_example",spectrum_file_name)
-        self.spectrum=np.load(os.path.join(self.root_path,"spectra_example",spectrum_file_name))
-        self.wl=np.load(os.path.join(self.root_path,"spectra_example",wavelength_file_name))
+        
+        self.spectrum=np.load(spectrum_path)
+        self.wl=np.load(wavelength_path)
 
     def procosine_inversion(self):
 

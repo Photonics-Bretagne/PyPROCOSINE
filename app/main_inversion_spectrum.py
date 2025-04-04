@@ -1,17 +1,15 @@
-#define the root path on teh root of the repo
+import pyprocosine.core.procosine_library as proco
+import os 
 import sys
-import os
 
-current_dir = os.path.dirname(__file__)
-root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-sys.path.append(root_path)
-
-#import the core of procosine
-import core.procosine_library as proco
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..")) 
+conf_path = os.path.join(ROOT_DIR, "conf", "inversion_parameters.json")
+spectrum_path=os.path.join(ROOT_DIR,"spectra_example","example_spectrum.npy")
+wl_path=os.path.join(ROOT_DIR,"spectra_example","example_wavelengths.npy")
 
 pro=proco.Procosine() # create a Procosine Class 
-pro.loading_inversion_parameters("inversion_parameters.json") # load inversion paraametrs from the json file in conf folder
-pro.load_spectrum("example_spectrum.npy","example_wavelengths.npy") # load spectrum and wavelengths from the spectrum_example folder
+pro.loading_inversion_parameters(conf_path) # load inversion paraametrs from the json file in conf folder
+pro.load_spectrum(spectrum_path,wl_path) # load spectrum and wavelengths from the spectrum_example folder
 
 """Apply Procosine inversion """
 # The "TolFun" parameter has to be tuned depending on signal SNR (low

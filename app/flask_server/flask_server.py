@@ -22,7 +22,7 @@ current_dir = os.path.dirname(__file__)
 root_path = os.path.abspath(os.path.join(current_dir, "..", ".."))
 sys.path.append(root_path)
 
-import core.procosine_library as proco
+import pyprocosine.core.procosine_library as proco
 
 INVERSION_CONFIG_FILE_PATH = os.path.join(root_path, 'conf', 'inversion_parameters.json')
 SIMULATION_CONFIG_FILE_PATH = os.path.join(root_path, 'conf', 'simulation_parameters.json')

@@ -1,0 +1,6 @@
+README.md
+setup.py
+pyprocosine.egg-info/PKG-INFO
+pyprocosine.egg-info/SOURCES.txt
+pyprocosine.egg-info/dependency_links.txt
+pyprocosine.egg-info/top_level.txt

@@ -1,0 +1,11 @@
+Metadata-Version: 2.2
+Name: pyprocosine
+Version: 0.1.0
+Summary: PROCOSINE analysis and simulation toolkit
+Author: Ton Nom
+Author-email: ton.email@example.com
+Requires-Python: >=3.8
+Dynamic: author
+Dynamic: author-email
+Dynamic: requires-python
+Dynamic: summary
