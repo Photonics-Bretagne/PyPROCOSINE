@@ -4,8 +4,8 @@ setup(
     name="pyprocosine",
     version="0.1.0",
     description="PROCOSINE analysis and simulation toolkit",
-    author="Ton Nom",
-    author_email="ton.email@example.com",
+    author="Mathieu Ribes, Sofian Helmer, Gaspard Russias",
+    author_email="grussias@photonics-bretagne.com",
     packages=find_packages(include=["pyprocosine", "pyprocosine.*"]),
     include_package_data=True,
     package_data={

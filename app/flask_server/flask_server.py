@@ -130,7 +130,7 @@ app.add_url_rule('/load-spectrum', 'load_spectrum_route', load_spectrum_route, m
 def run_simulation():
     try:
         pro = proco.Procosine()
-        pro.loading_simulation_paramaters(SIMULATION_CONFIG_FILE_PATH)
+        pro.loading_simulation_parameters(SIMULATION_CONFIG_FILE_PATH)
         pro.procosine_simulation()
 
         # Génération de l'URL du graphe

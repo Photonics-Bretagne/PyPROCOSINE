@@ -2,8 +2,8 @@ Metadata-Version: 2.2
 Name: pyprocosine
 Version: 0.1.0
 Summary: PROCOSINE analysis and simulation toolkit
-Author: Ton Nom
-Author-email: ton.email@example.com
+Author: Mathieu Ribes, Sofian Helmer, Gaspard Russias
+Author-email: grussias@photonics-bretagne.com
 Requires-Python: >=3.8
 Dynamic: author
 Dynamic: author-email

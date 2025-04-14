@@ -40,7 +40,34 @@ class Procosine():
         # self.root_path=os.getcwd()
         # os.chdir(working_path)
         self.root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-        self.dataSpec_P5B() 
+        self.dataSpec_P5B()
+        self.default_inversion_param = {
+            "Thetas": 0,
+            "P0": [1.5, 50, 10, 0, 0.01, 0.01, 20, 0],
+            "LB": [1, 0, 0, 0, 0.0005, 0.001, 0, -0.2],
+            "UB": [3, 100, 30, 5, 0.1, 0.02, 90, 0.6],
+            "gtol": 1e-6,
+            "xtol": 1e-6,
+            "ftol": 0.005
+        }
+
+        self.default_simulation_param = {
+            "N": 3,
+            "Cab": 30,
+            "Ccx": 100,
+            "Cbp": 0,
+            "Cw": 0.015,
+            "Cdm": 0.01,
+            "Theta_i": 30,
+            "Bspec": 0.02,
+            "Thetas": 0
+        }
+
+        self.loading_inversion_parameters()
+        self.loading_simulation_parameters()
+
+        
+ 
 
     def dataSpec_P5B(self):
         """ 
@@ -67,38 +94,31 @@ class Procosine():
             self.data=np.load(f)
 
 
-    def loading_inversion_parameters(self,parameter_path):
+    def loading_inversion_parameters(self, parameter_path=None):
         """
-        This function allows to load inversion parameters stored in json file. The json file need to be stored  in the conf directory !
-
-        Parameters
-        ----------
-        parameter_path : str
-            the path of the json file containing inversion parameters. The json file need to be stored in the conf directory !!
-
+        Charge les paramètres d'inversion depuis un fichier JSON, ou utilise les valeurs par défaut.
         """
-        
-        with open(parameter_path, 'r') as f:
-            self.inversion_param  = json.load(f)
-        self.inversion_param["P0"]=np.array(self.inversion_param["P0"])
-        self.inversion_param["LB"]=np.array(self.inversion_param["LB"])
-        self.inversion_param["UB"]=np.array(self.inversion_param["UB"])
-        self.inversion_param["Thetas"]=int(self.inversion_param["Thetas"])
+        if parameter_path is not None and os.path.exists(parameter_path):
+            with open(parameter_path, 'r') as f:
+                self.inversion_param = json.load(f)
+        else:
+            self.inversion_param = self.default_inversion_param.copy()
+
+        self.inversion_param["P0"] = np.array(self.inversion_param["P0"])
+        self.inversion_param["LB"] = np.array(self.inversion_param["LB"])
+        self.inversion_param["UB"] = np.array(self.inversion_param["UB"])
+        self.inversion_param["Thetas"] = int(self.inversion_param["Thetas"])
 
 
-    def loading_simulation_paramaters(self,parameter_path):
+    def loading_simulation_parameters(self, parameter_path=None):
         """
-        This function allows to load simulation parameters stored in json file. The json file need to be stored  in the conf directory !
-
-        Parameters
-        ----------
-        parameter_path : str
-            the path of the json file containing simulation parameters. The json file need to be stored in the conf directory !!
-
+        Charge les paramètres de simulation depuis un fichier JSON, ou utilise les valeurs par défaut.
         """
-
-        with open(parameter_path, 'r') as f:
-            self.simulation_param  = json.load(f) 
+        if parameter_path is not None and os.path.exists(parameter_path):
+            with open(parameter_path, 'r') as f:
+                self.simulation_param = json.load(f)
+        else:
+            self.simulation_param = self.default_simulation_param.copy()
 
 
 
