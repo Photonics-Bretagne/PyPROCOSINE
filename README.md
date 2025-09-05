@@ -25,7 +25,7 @@ git clone https://gitlab.com/analyse_data/pyprocosine.git
 ``` 
 Change the current working directory and install the repository as a python package
 ```
-cd pyprocosine
+cd Pyprocosine
 pip install . 
 ``` 
 
