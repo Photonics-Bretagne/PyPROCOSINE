@@ -1,6 +1,12 @@
 README.md
 setup.py
+pyprocosine/__init__.py
 pyprocosine.egg-info/PKG-INFO
 pyprocosine.egg-info/SOURCES.txt
 pyprocosine.egg-info/dependency_links.txt
+pyprocosine.egg-info/requires.txt
 pyprocosine.egg-info/top_level.txt
+pyprocosine/core/__init__.py
+pyprocosine/core/dataSpec_P5B.npy
+pyprocosine/core/procosine_library.py
+pyprocosine/core/procosine_src.py

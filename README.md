@@ -23,14 +23,12 @@ Clone the PyProcosine repository
 ```
 git clone https://gitlab.com/analyse_data/pyprocosine.git
 ``` 
-Change the current working directory and go to the install folder
+Change the current working directory and install the repository as a python package
 ```
-cd pyprocosine/install
+cd pyprocosine
+pip install . 
 ``` 
-Finally, install the required Python packages
-```
-pip install -r requirements.txt
-``` 
+
 Enjoy!
 
 **Note:** Installation of Numpy package should be done at the same time that the Scipy package in order to have compatible versions.

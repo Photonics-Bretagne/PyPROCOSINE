@@ -12,8 +12,12 @@ setup(
         "pyprocosine.core": ["dataSpec_P5B.npy"],  # Fichier embarqué dans le package
     },
     install_requires=[
-        # "numpy",
-        # "matplotlib",
+        "Flask==3.1.0",
+        "matplotlib==3.8.0",
+        "numpy==1.24.4",
+        "pandas==2.2.3",
+        "scipy==1.9.0",
+        "uncertainties==3.1.7"
     ],
     python_requires=">=3.8",
 )

@@ -1,11 +1,18 @@
-Metadata-Version: 2.2
+Metadata-Version: 2.4
 Name: pyprocosine
 Version: 0.1.0
 Summary: PROCOSINE analysis and simulation toolkit
 Author: Mathieu Ribes, Sofian Helmer, Gaspard Russias
 Author-email: grussias@photonics-bretagne.com
 Requires-Python: >=3.8
+Requires-Dist: Flask==3.1.0
+Requires-Dist: matplotlib==3.8.0
+Requires-Dist: numpy==1.24.4
+Requires-Dist: pandas==2.2.3
+Requires-Dist: scipy==1.9.0
+Requires-Dist: uncertainties==3.1.7
 Dynamic: author
 Dynamic: author-email
+Dynamic: requires-dist
 Dynamic: requires-python
 Dynamic: summary
